@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'data/theme.dart';
 import 'UI/components/purchases_list.dart';
+import 'domain/services/api_service.dart';
+
+void setupLocator() {
+  GetIt.I.registerLazySingleton<ApiService>(() => ApiService());
+}
 
 void main() {
+  setupLocator();
   runApp(const MyApp());
 }
 

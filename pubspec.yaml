@@ -12,6 +12,7 @@ dependencies:
   dio: ^5.7.0
   flutter:
     sdk: flutter
+  get_it: ^7.7.0
   google_fonts: ^6.1.0
   http: ^1.2.1
   json_annotation: ^4.9.0
@@ -19,13 +20,13 @@ dependencies:
 
 dev_dependencies:
   analyzer: ^6.7.0
-  flutter_lints: ^4.0.0
-  json_serializable: ^6.8.0
-  retrofit_generator: ^9.1.2
   build_runner: ^2.4.12
+  flutter_lints: ^4.0.0
 
   flutter_test:
     sdk: flutter
+  json_serializable: ^6.8.0
+  retrofit_generator: ^9.1.2
 
 flutter:
   uses-material-design: true

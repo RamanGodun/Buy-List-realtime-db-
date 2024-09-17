@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../data/constants.dart';
@@ -149,38 +151,48 @@ class _NewItemState extends State<NewItem> {
     if (!_formKey.currentState!.validate() || _selectedCategory == null) {
       return;
     }
-
     _isSending.value = true;
+    try {
+      final newItem = PurchaseItemModel(
+        id: null,
+        name: _nameController.text,
+        quantity: int.parse(_quantityController.text),
+        category: _selectedCategory!,
+      );
 
-    final url = Constants.shoppingListUrl;
-    final newItem = PurchaseItemModel(
-      id: null,
-      name: _nameController.text,
-      quantity: int.parse(_quantityController.text),
-      category: _selectedCategory!,
-    );
-
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(newItem.toJson()),
-    );
-
-    if (response.statusCode >= 400) {
-      // Обробник помилок
-    } else {
-      if (mounted) {
-        Navigator.of(context).pop(
-          PurchaseItemModel(
-            id: json.decode(response.body)['name'],
-            name: newItem.name,
-            quantity: newItem.quantity,
-            category: newItem.category,
-          ),
-        );
+      final response = await http.post(
+        Constants.shoppingListUrl,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(newItem.toJson()),
+      );
+      if (response.statusCode >= 400) {
+        throw Exception('Помилка при збереженні елемента.');
       }
+      if (mounted) {
+        Navigator.of(context).pop(PurchaseItemModel(
+          id: json.decode(response.body)['name'],
+          name: newItem.name,
+          quantity: newItem.quantity,
+          category: newItem.category,
+        ));
+      }
+    } on SocketException {
+      _showErrorMessage('Немає з’єднання з інтернетом. Перевірте підключення.');
+    } on TimeoutException {
+      _showErrorMessage('Час очікування відповіді від сервера сплив.');
+    } catch (error) {
+      _showErrorMessage('Не вдалося зберегти елемент. Спробуйте пізніше.');
+    } finally {
+      _isSending.value = false;
     }
-
-    _isSending.value = false;
   }
+
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      backgroundColor: Colors.red,
+    ));
+  }
+//
+//
 }

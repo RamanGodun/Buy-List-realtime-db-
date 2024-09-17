@@ -1,10 +1,9 @@
-import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart' as http;
-import '../../data/constants.dart';
-import '../../domain/models/category_model.dart';
+import 'package:get_it/get_it.dart';
 import '../../domain/models/purchase_model.dart';
+import '../../domain/services/api_service.dart';
 import 'new_item.dart';
 
 class PurchaseList extends StatefulWidget {
@@ -15,9 +14,11 @@ class PurchaseList extends StatefulWidget {
 }
 
 class _PurchaseListState extends State<PurchaseList> {
+  final ApiService _apiService = GetIt.I<ApiService>();
   final ValueNotifier<List<PurchaseItemModel>> _itemsNotifier =
       ValueNotifier([]);
-  final url = Constants.shoppingListUrl;
+  final ValueNotifier<bool> _isLoading = ValueNotifier(false);
+  late ThemeData theme;
 
   @override
   void initState() {
@@ -26,45 +27,59 @@ class _PurchaseListState extends State<PurchaseList> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    theme = Theme.of(context);
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = theme.textTheme;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: Text(
           'Список покупок',
           style: textTheme.titleMedium,
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: ValueListenableBuilder<List<PurchaseItemModel>>(
-          valueListenable: _itemsNotifier,
-          builder: (context, items, child) {
-            if (items.isEmpty) {
-              return const Center(child: CircularProgressIndicator());
-            }
+      body: ValueListenableBuilder<bool>(
+        valueListenable: _isLoading,
+        builder: (context, isLoading, child) {
+          if (isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            return SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: ListView.separated(
-                  separatorBuilder: (context, index) => const Divider(
-                    color: Colors.grey,
-                    thickness: 0.5,
+          return ValueListenableBuilder<List<PurchaseItemModel>>(
+            valueListenable: _itemsNotifier,
+            builder: (context, items, child) {
+              if (items.isEmpty) {
+                return const Center(
+                    child: Text('Додайте свою першу покупку "+"👆🏼'));
+              }
+
+              return SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: ListView.separated(
+                    separatorBuilder: (context, index) => const Divider(
+                      color: Colors.grey,
+                      thickness: 0.5,
+                    ),
+                    itemCount: items.length,
+                    itemBuilder: (ctx, index) =>
+                        _buildListItem(items[index], textTheme),
                   ),
-                  itemCount: items.length,
-                  itemBuilder: (ctx, index) =>
-                      _buildListItem(items[index], textTheme),
                 ),
-              ),
-            );
-          },
-        ),
+              );
+            },
+          );
+        },
       ),
       floatingActionButton: InkWell(
-        onTap: _addItem,
+        onTap: () async {
+          await _navigateToAddItem();
+        },
         child: Container(
           width: 50,
           height: 50,
@@ -114,53 +129,59 @@ class _PurchaseListState extends State<PurchaseList> {
   }
 
   Future<void> _loadItems() async {
-    final response = await http.get(url);
-
-    if (response.statusCode >= 400) {
-      throw Exception('Не вдалося отримати дані. Спробуйте пізніше.');
+    _isLoading.value = true;
+    try {
+      final items = await _apiService.fetchItemsFromDB();
+      _itemsNotifier.value = items;
+    } on SocketException {
+      _showErrorMessage('Немає з’єднання з інтернетом. Перевірте підключення.');
+    } catch (error) {
+      _showErrorMessage('Не вдалося завантажити дані. Спробуйте пізніше.');
+    } finally {
+      _isLoading.value = false;
     }
-
-    if (response.body == 'null') {
-      _itemsNotifier.value = [];
-      return;
-    }
-
-    final Map<String, dynamic> listData = json.decode(response.body);
-    _itemsNotifier.value = listData.entries.map((item) {
-      final category = categoriesData.entries
-          .firstWhere((categoryItem) =>
-              categoryItem.value.title == item.value['category'])
-          .value;
-
-      return PurchaseItemModel(
-        id: item.key,
-        name: item.value['name'],
-        quantity: int.tryParse(item.value['quantity'].toString()) ?? 1,
-        category: category,
-      );
-    }).toList();
   }
 
-  Future<void> _addItem() async {
-    final newItem = await Navigator.of(context).push<PurchaseItemModel>(
-      MaterialPageRoute(builder: (ctx) => const NewItem()),
-    );
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
 
-    if (newItem != null) {
+  Future<void> _addItem(PurchaseItemModel newItem) async {
+    _isLoading.value = true;
+    try {
+      await _apiService.addItem(newItem);
       _itemsNotifier.value = [..._itemsNotifier.value, newItem];
+    } on SocketException {
+      _showErrorMessage('Немає з’єднання з інтернетом. Перевірте підключення.');
+    } catch (error) {
+      _showErrorMessage('Не вдалося додати елемент.');
+    } finally {
+      _isLoading.value = false;
     }
   }
 
   Future<void> _removeItem(PurchaseItemModel item) async {
-    final deleteUrl =
-        Uri.https(Constants.baseUrl, 'shopping-list/${item.id}.json');
-    final response = await http.delete(deleteUrl);
-
-    if (response.statusCode >= 400) {
-      // Обробник помилок
-    } else {
+    _isLoading.value = true;
+    try {
+      await _apiService.deleteItem(item.id!);
       _itemsNotifier.value =
           _itemsNotifier.value.where((i) => i.id != item.id).toList();
+    } on SocketException {
+      _showErrorMessage('Немає з’єднання з інтернетом. Перевірте підключення.');
+    } catch (error) {
+      _showErrorMessage('Не вдалося видалити елемент.');
+    } finally {
+      _isLoading.value = false;
+    }
+  }
+
+  Future<void> _navigateToAddItem() async {
+    final newItem = await Navigator.of(context).push<PurchaseItemModel>(
+      MaterialPageRoute(builder: (ctx) => const NewItem()),
+    );
+    if (newItem != null) {
+      await _addItem(newItem);
     }
   }
 }
