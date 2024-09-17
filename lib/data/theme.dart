@@ -2,13 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const Color kPrimaryColor = Color.fromARGB(255, 245, 95, 250);
-const Color kSecondaryColor = Color.fromARGB(212, 53, 212, 165);
+const Color kPrimaryColor = Color.fromARGB(255, 245, 95,
+    250); // Можна змінити на пастельний відтінок для більш мінімалістичного вигляду
+const Color kSecondaryColor =
+    Color.fromARGB(212, 53, 212, 165); // Залишаємо або робимо м'якішим
 
 final kColorScheme = ColorScheme.fromSwatch().copyWith(
   primary: kPrimaryColor,
   secondary: kSecondaryColor,
-  surface: const Color.fromARGB(255, 255, 255, 255),
+  surface: const Color.fromARGB(255, 255, 255, 255), // Білий для фону
   onPrimary: Colors.white,
   onSecondary: Colors.black,
   onSurface: Colors.black,
@@ -19,59 +21,67 @@ final kTheme = ThemeData.light().copyWith(
   scaffoldBackgroundColor: kColorScheme.surface,
   appBarTheme: AppBarTheme(
     centerTitle: true,
-    backgroundColor: kColorScheme.secondary.withOpacity(0.15),
-    elevation: 1,
+    backgroundColor:
+        kColorScheme.secondary.withOpacity(0.12), // Більш прозорий AppBar
+    elevation: 0.5, // Менша тінь
+    titleTextStyle: GoogleFonts.montserrat(
+      fontWeight: FontWeight.w600,
+      fontSize: 18,
+      color: kColorScheme.onSurface,
+    ),
   ),
-  tabBarTheme: const TabBarTheme().copyWith(),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       maximumSize: const Size(double.infinity, double.infinity),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 30),
-      backgroundColor: kColorScheme.primary,
+      padding: const EdgeInsets.symmetric(
+          vertical: 12, horizontal: 35), // Трохи більше padding для легкості
+      backgroundColor: kColorScheme.primary
+          .withOpacity(0.9), // Трохи прозорий колір для легшого вигляду
       foregroundColor: kColorScheme.onPrimary,
       textStyle: GoogleFonts.montserrat(
-        fontSize: 15,
-        fontWeight: FontWeight.w400,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12), // Більш закруглені кути
       ),
     ),
   ),
-  cardTheme: const CardTheme().copyWith(
-    elevation: 4,
-    margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-    color: const Color.fromARGB(255, 227, 255, 247),
-    // kColorScheme.onSecondary.withOpacity(0.15),
+  cardTheme: CardTheme(
+    elevation: 3, // Зменшена тінь для карток
+    margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+    color: const Color.fromARGB(
+        255, 240, 250, 255), // Світлий пастельний колір карток
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(10), // Закруглені кути
     ),
   ),
   textTheme: kTextThemeData,
-  //
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
     fillColor: kColorScheme.surface,
-    contentPadding: const EdgeInsets.symmetric(vertical: 7, horizontal: 7),
-    border: const OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(8)),
-      borderSide: BorderSide(
-        width: 0.2,
+    contentPadding: const EdgeInsets.symmetric(
+        vertical: 10,
+        horizontal: 15), // Трохи більше padding для кращого вигляду
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10), // Закруглені кути
+      borderSide: const BorderSide(
+        width: 0.5,
         color: Colors.grey,
       ),
     ),
-    enabledBorder: const OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(8)),
-      borderSide: BorderSide(
-        width: 0.2,
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: const BorderSide(
+        width: 0.5,
         color: Colors.grey,
       ),
     ),
-    focusedBorder: const OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(8)),
-      borderSide: BorderSide(
-        width: 0.2,
-        color: Colors.grey,
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: const BorderSide(
+        width: 1,
+        color: Colors.blueAccent, // Акцент на синій при фокусі
       ),
     ),
   ),
@@ -79,8 +89,8 @@ final kTheme = ThemeData.light().copyWith(
 
 CupertinoThemeData getCupertinoTheme() {
   return CupertinoThemeData(
-    primaryColor: CupertinoColors.darkBackgroundGray,
-    barBackgroundColor: kColorScheme.secondary,
+    primaryColor: CupertinoColors.systemBlue,
+    barBackgroundColor: kColorScheme.secondary.withOpacity(0.2),
     scaffoldBackgroundColor: kColorScheme.surface,
     textTheme: CupertinoTextThemeData(
       primaryColor: kColorScheme.onPrimary,
@@ -98,14 +108,15 @@ CupertinoThemeData getCupertinoTheme() {
 
 final kTextThemeData = GoogleFonts.montserratTextTheme().copyWith(
   titleLarge: TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 20,
+    fontWeight: FontWeight.w600,
+    fontSize: 22, // Трохи більший розмір для заголовків
     color: kColorScheme.onSurface,
   ),
   bodyMedium: TextStyle(
     fontWeight: FontWeight.normal,
     fontSize: 16,
-    color: kColorScheme.onSurface,
+    color: kColorScheme.onSurface
+        .withOpacity(0.7), // Легший колір для звичайного тексту
   ),
   bodyLarge: TextStyle(
     fontWeight: FontWeight.normal,
