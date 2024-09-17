@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
 import '../../../data/constants.dart';
+import 'enums.dart';
 
-enum CategoryEnums {
-  vegetables,
-  fruit,
-  meat,
-  dairy,
-  sweets,
-  convenience,
-  other
-}
-
+/// Represents a category for a shopping item, containing a title and color.
 class CategoryModel {
-  const CategoryModel(this.title, this.color);
-
+  /// The name of the category (e.g., "Vegetables", "Fruits").
   final String title;
+
+  /// The color associated with the category (used in the UI for differentiation).
   final Color color;
+
+  const CategoryModel(this.title, this.color);
 }
 
+/// A map that associates each `CategoryEnums` value with its corresponding `CategoryModel`.
+/// This allows easy lookup of category details based on the enum.
 final Map<CategoryEnums, CategoryModel> categoriesData = {
   CategoryEnums.vegetables: const CategoryModel(
     Constants.vegetablesTitle,
@@ -49,7 +46,9 @@ final Map<CategoryEnums, CategoryModel> categoriesData = {
   ),
 };
 
-// Функція для отримання назви категорії (може використовуватися за потребою)
-// String categoryDisplayName(CategoryEnums category) {
-//   return categoriesData[category]?.title ?? 'Невідома категорія';
-// }
+/// Example function for fetching the display name of a category based on its enum value.
+/// Uncomment this if needed for displaying category names.
+/// 
+/// String categoryDisplayName(CategoryEnums category) {
+///   return categoriesData[category]?.title ?? 'Unknown category';
+/// }
