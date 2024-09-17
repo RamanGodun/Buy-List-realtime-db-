@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../data/constants.dart'; // Імпорт констант
 import '../../domain/models/category_model.dart';
 import '../../domain/models/purchase_model.dart';
 import '../components/input_fields/dd_field.dart';
@@ -26,12 +28,13 @@ class _NewItemState extends State<NewItem> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Додати до списку покупок',
-          style: textTheme.titleMedium,
+          Constants.addItemTitle,
+          style: textTheme.titleLarge,
         ),
+        backgroundColor: Colors.transparent,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: Constants.newItemPadding,
         child: Center(
           child: Form(
             key: _formKey,
@@ -43,19 +46,19 @@ class _NewItemState extends State<NewItem> {
                     controller: _nameController,
                     textTheme: textTheme,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: Constants.smallVerticalSpacing),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       // Поле для кількості
                       SizedBox(
-                        width: 100,
+                        width: Constants.quantityFieldWidth,
                         child: QuantityInputField(
                           controller: _quantityController,
                           textTheme: textTheme,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: Constants.smallHorizontalSpacing),
                       // Поле для вибору категорії
                       Expanded(
                         child: CategoryDropdownField(
@@ -70,27 +73,26 @@ class _NewItemState extends State<NewItem> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 29.0),
-                        child: ValueListenableBuilder<bool>(
-                          valueListenable: _isSending,
-                          builder: (context, isSending, child) {
-                            return ElevatedButton(
+                  const SizedBox(height: Constants.mediumVerticalSpacing),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16, top: 35),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: _isSending,
+                        builder: (context, isSending, child) {
+                          return SizedBox(
+                            width: Constants.elevatedButtonWidth,
+                            child: ElevatedButton(
                               onPressed: isSending ? null : _saveItem,
                               child: isSending
-                                  ? const CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    )
-                                  : const Text('Зберегти'),
-                            );
-                          },
-                        ),
+                                  ? const CupertinoActivityIndicator()
+                                  : const Text(Constants.saveButtonText),
+                            ),
+                          );
+                        },
                       ),
-                    ],
+                    ),
                   )
                 ],
               ),

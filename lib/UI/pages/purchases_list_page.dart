@@ -1,8 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import '../../data/constants.dart';
 import '../../domain/models/purchase_model.dart';
 import '../../domain/services/api_service.dart';
-import '../components/others/add_button.dart';
 import '../components/list_item.dart';
 import 'new_item_page.dart';
 
@@ -37,35 +38,38 @@ class _PurchaseListState extends State<PurchaseList> {
     final textTheme = theme.textTheme;
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'Список покупок',
-          style: textTheme.titleMedium,
+          Constants.purchaseListTitle,
+          style: textTheme.titleLarge,
         ),
+        elevation: 0,
       ),
       body: ValueListenableBuilder<bool>(
         valueListenable: _isLoading,
         builder: (context, isLoading, child) {
           if (isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CupertinoActivityIndicator(radius: 25));
           }
 
           return ValueListenableBuilder<List<PurchaseItemModel>>(
             valueListenable: _itemsNotifier,
             builder: (context, items, child) {
               if (items.isEmpty) {
-                return const Center(
-                    child: Text('Додайте свою першу покуп! 👆🏼+'));
+                return const Padding(
+                  padding: EdgeInsets.only(bottom: 508.0),
+                  child: Center(child: Text(Constants.emptyListMessage)),
+                );
               }
 
               return SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
                   child: ListView.separated(
-                    separatorBuilder: (context, index) => const Divider(
-                      color: Colors.grey,
-                      thickness: 0.5,
+                    separatorBuilder: (context, index) => Divider(
+                      color: Colors.grey.shade300,
+                      thickness: 1,
                     ),
                     itemCount: items.length,
                     itemBuilder: (ctx, index) => ListItemWidget(
@@ -83,15 +87,22 @@ class _PurchaseListState extends State<PurchaseList> {
           );
         },
       ),
-      floatingActionButton: InkWell(
-        onTap: () async {
-          await _navigateToAddItem();
-        },
-        child: const AddButtonWidget(),
+      floatingActionButton: Padding(
+        padding: Constants.floatingActionButtonPadding,
+        child: FloatingActionButton(
+          onPressed: () async {
+            await _navigateToAddItem();
+          },
+          backgroundColor: Constants.kPrimaryColor,
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
     );
   }
 
+/*
+  Used METHODS are next:
+ */
   Future<void> _loadItems() async {
     _isLoading.value = true;
     try {
@@ -140,5 +151,4 @@ class _PurchaseListState extends State<PurchaseList> {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
   }
-//
 }

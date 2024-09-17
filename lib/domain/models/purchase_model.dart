@@ -16,7 +16,11 @@ class PurchaseItemModel {
   // Генератор категорії на основі імені категорії
   CategoryModel get category {
     return categoriesData.entries
-        .firstWhere((entry) => entry.value.title == categoryName)
+        .firstWhere(
+          (entry) => entry.value.title == categoryName,
+          orElse: () => MapEntry(
+              CategoryEnums.other, categoriesData[CategoryEnums.other]!),
+        )
         .value;
   }
 

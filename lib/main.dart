@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Закупи',
+      title: Constants.appName,
       theme: kTheme,
       home: const PurchaseList(),
     );
@@ -27,11 +27,10 @@ class MyApp extends StatelessWidget {
 
 void setupLocator() {
   final dio = Dio();
-  // Вказуємо базовий URL напряму в коді
   dio.options = BaseOptions(
     baseUrl: Constants.baseUrl,
-    connectTimeout: const Duration(milliseconds: 5000),
-    receiveTimeout: const Duration(milliseconds: 3000),
+    connectTimeout: Constants.connectTimeout,
+    receiveTimeout: Constants.receiveTimeout,
   );
   GetIt.I.registerLazySingleton<ApiService>(() => ApiService(dio));
 }

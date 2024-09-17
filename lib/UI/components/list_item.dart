@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import '../../data/constants.dart';
 import '../../domain/models/purchase_model.dart';
 import '../../domain/services/api_service.dart';
 
@@ -39,13 +39,13 @@ class _ListItemWidgetState extends State<ListItemWidget> {
               .where((item) => item.id != widget.item.id)
               .toList();
         } catch (error) {
-          widget.showErrorMessage('Не вдалося видалити елемент.');
+          widget.showErrorMessage(Constants.removeItemErrorMessage);
         } finally {
           widget.isLoading.value = false;
         }
       },
       background: Container(
-        color: CupertinoColors.systemRed.withOpacity(0.2),
+        color: Constants.dismissibleBackgroundColor.withOpacity(0.2),
         child: const Icon(Icons.delete, color: Colors.white),
       ),
       child: ListTile(
@@ -66,7 +66,8 @@ class _ListItemWidgetState extends State<ListItemWidget> {
                     .where((item) => item.id != widget.item.id)
                     .toList();
               } catch (error) {
-                widget.showErrorMessage('Не вдалося видалити елемент.');
+                widget.showErrorMessage(
+                    Constants.removeItemErrorMessage); // Винесено в константи
               } finally {
                 widget.isLoading.value = false;
               }

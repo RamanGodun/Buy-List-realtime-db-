@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../data/constants.dart';
 
 class NameInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -14,16 +15,27 @@ class NameInputField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
-      maxLength: 50,
+      maxLength: Constants.nameInputMaxLength,
       keyboardType: TextInputType.text,
       decoration: InputDecoration(
-        labelText: 'Потрібно купити: ',
+        labelText: Constants.nameInputLabel,
         labelStyle: textTheme.bodyMedium,
+        filled: true,
+        fillColor: Constants.inputFillColor,
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: Constants.inputVerticalPadding,
+          horizontal: Constants.inputHorizontalPadding,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Constants.inputBorderRadius),
+          borderSide: BorderSide.none,
+        ),
       ),
       style: textTheme.bodyMedium,
       validator: (value) {
-        if (value!.trim().length <= 1 || value.trim().length > 50) {
-          return 'Має бути від 1 до 50 символів.';
+        if (value!.trim().length <= Constants.nameInputMinLength ||
+            value.trim().length > Constants.nameInputMaxLength) {
+          return Constants.nameInputErrorMessage;
         }
         return null;
       },
