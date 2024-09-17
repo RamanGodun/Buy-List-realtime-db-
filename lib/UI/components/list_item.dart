@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../../domain/models/purchase_model.dart';
 import '../../domain/services/api_service.dart';
 
-class ListItemWidget extends StatelessWidget {
+class ListItemWidget extends StatefulWidget {
   final PurchaseItemModel item;
   final TextTheme textTheme;
   final ApiService apiService;
@@ -22,11 +22,27 @@ class ListItemWidget extends StatelessWidget {
   });
 
   @override
+  State<ListItemWidget> createState() => _ListItemWidgetState();
+}
+
+class _ListItemWidgetState extends State<ListItemWidget> {
+  @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: ValueKey(item.id),
-      onDismissed: (direction) {
-        apiService.removeItem(item, itemsNotifier, isLoading, showErrorMessage);
+      key: ValueKey(widget.item.id),
+      onDismissed: (direction) async {
+        widget.isLoading.value = true;
+        try {
+          await widget.apiService.removeItem(widget.item.id!);
+          // Оновлюємо список після видалення елемента
+          widget.itemsNotifier.value = widget.itemsNotifier.value
+              .where((item) => item.id != widget.item.id)
+              .toList();
+        } catch (error) {
+          widget.showErrorMessage('Не вдалося видалити елемент.');
+        } finally {
+          widget.isLoading.value = false;
+        }
       },
       background: Container(
         color: CupertinoColors.systemRed.withOpacity(0.2),
@@ -34,21 +50,33 @@ class ListItemWidget extends StatelessWidget {
       ),
       child: ListTile(
         title: Text(
-          item.name,
-          style: textTheme.bodyLarge?.copyWith(color: item.category.color),
+          widget.item.name,
+          style: widget.textTheme.bodyLarge
+              ?.copyWith(color: widget.item.category.color),
         ),
         leading: Checkbox(
           value: false,
-          onChanged: (bool? value) {
+          onChanged: (bool? value) async {
             if (value == true) {
-              apiService.removeItem(
-                  item, itemsNotifier, isLoading, showErrorMessage);
+              widget.isLoading.value = true;
+              try {
+                await widget.apiService.removeItem(widget.item.id!);
+                // Оновлюємо список після видалення елемента
+                widget.itemsNotifier.value = widget.itemsNotifier.value
+                    .where((item) => item.id != widget.item.id)
+                    .toList();
+              } catch (error) {
+                widget.showErrorMessage('Не вдалося видалити елемент.');
+              } finally {
+                widget.isLoading.value = false;
+              }
             }
           },
         ),
         trailing: Text(
-          item.quantity.toString(),
-          style: textTheme.bodyMedium?.copyWith(color: item.category.color),
+          widget.item.quantity.toString(),
+          style: widget.textTheme.bodyMedium
+              ?.copyWith(color: widget.item.category.color),
         ),
       ),
     );

@@ -50,6 +50,6 @@ final Map<CategoryEnums, CategoryModel> categoriesData = {
 };
 
 // Функція для отримання назви категорії (може використовуватися за потребою)
-String categoryDisplayName(CategoryEnums category) {
-  return categoriesData[category]?.title ?? 'Невідома категорія';
-}
+// String categoryDisplayName(CategoryEnums category) {
+//   return categoriesData[category]?.title ?? 'Невідома категорія';
+// }

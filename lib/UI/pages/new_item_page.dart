@@ -105,12 +105,14 @@ class _NewItemState extends State<NewItem> {
     if (!_formKey.currentState!.validate() || _selectedCategory == null) {
       return;
     }
+
     final newItem = PurchaseItemModel(
       id: null,
       name: _nameController.text,
       quantity: int.parse(_quantityController.text),
-      category: _selectedCategory!,
+      categoryName: _selectedCategory!.title,
     );
+
     Navigator.of(context).pop(newItem);
   }
 }

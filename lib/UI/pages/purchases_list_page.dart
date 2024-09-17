@@ -23,7 +23,7 @@ class _PurchaseListState extends State<PurchaseList> {
   @override
   void initState() {
     super.initState();
-    _apiService.loadItems(_itemsNotifier, _isLoading, _showErrorMessage);
+    _loadItems();
   }
 
   @override
@@ -56,7 +56,7 @@ class _PurchaseListState extends State<PurchaseList> {
             builder: (context, items, child) {
               if (items.isEmpty) {
                 return const Center(
-                    child: Text('Додайте свою першу покупку "+"👆🏼'));
+                    child: Text('Додайте свою першу покуп! 👆🏼+'));
               }
 
               return SafeArea(
@@ -83,7 +83,6 @@ class _PurchaseListState extends State<PurchaseList> {
           );
         },
       ),
-      //
       floatingActionButton: InkWell(
         onTap: () async {
           await _navigateToAddItem();
@@ -93,16 +92,47 @@ class _PurchaseListState extends State<PurchaseList> {
     );
   }
 
-/*
-  Used METHODS are next:
- */
+  Future<void> _loadItems() async {
+    _isLoading.value = true;
+    try {
+      final response = await _apiService.fetchItems();
+      // Перевірка тільки на порожню відповідь
+      if (response.isEmpty) {
+        _itemsNotifier.value = [];
+      } else {
+        // Обробка даних, якщо вони присутні
+        final List<PurchaseItemModel> items = response.entries.map((entry) {
+          return entry.value;
+        }).toList();
+        _itemsNotifier.value = items;
+      }
+    } catch (error) {
+      _showErrorMessage('Помилка завантаження даних.');
+    } finally {
+      _isLoading.value = false;
+    }
+  }
+
+  Future<void> _addItem(PurchaseItemModel newItem) async {
+    _isLoading.value = true;
+    try {
+      // Додаємо новий елемент до Firebase без ID, Firebase згенерує його самостійно
+      await _apiService.addItem(newItem);
+      // Перезавантажуємо список покупок після додавання
+      await _loadItems();
+    } catch (error) {
+      _showErrorMessage('Не вдалося додати елемент.');
+    } finally {
+      _isLoading.value = false;
+    }
+  }
+
   Future<void> _navigateToAddItem() async {
     final newItem = await Navigator.of(context).push<PurchaseItemModel>(
       MaterialPageRoute(builder: (ctx) => const NewItem()),
     );
     if (newItem != null) {
-      await _apiService.addItem(
-          newItem, _itemsNotifier, _isLoading, _showErrorMessage);
+      await _addItem(newItem);
     }
   }
 
@@ -110,4 +140,5 @@ class _PurchaseListState extends State<PurchaseList> {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
   }
+//
 }
