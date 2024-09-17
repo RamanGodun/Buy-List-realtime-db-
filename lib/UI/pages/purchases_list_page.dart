@@ -71,8 +71,10 @@ class _PurchaseListState extends State<PurchaseList> {
               // If there are no items, display a message.
               if (items.isEmpty) {
                 return const Padding(
-                  padding: EdgeInsets.only(bottom: 508.0),
-                  child: Center(child: Text(Constants.emptyListMessage)),
+                  padding: EdgeInsets.only(bottom: 50.0),
+                  child: Center(
+                      child: Text(Constants.emptyListMessage,
+                          style: TextStyle(fontSize: 20))),
                 );
               }
 
